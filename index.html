@@ -13,21 +13,17 @@
 <script src="script/pluey.js"></script> 
 <script>
 const vh = window.screen.height / 100;
-const vw = window.screen.width / 100;
-const vmin = Math.min(window.screen.height, window.screen.width) / 100;
 document.documentElement.style.setProperty('--frozen-vh', `${vh}px`);
-document.documentElement.style.setProperty('--frozen-vw', `${vw}px`);
-document.documentElement.style.setProperty('--frozen-vmin', `${vmin}px`);
 (function(){setTimeout(pluey,1);})();
 </script>
 </meta>
 <body style="background-color:black">
 <p>FUN: <span id="fun"></span></p>
-<center><p style="color:pink;font-size:calc(3.3 * var(--frozen-vmin))">There is a</p></center>
-<center><p id="chance" style="color:yellow;font-size:calc(6.6 * var(--frozen-vmin))"></p></center>
-<center><p style="color:pink;font-size:calc(3.3 * var(--frozen-vmin))">chance of <a href="https://deltarune.com">DELTARUNE</a> releasing tomorrow.</p>
+<center><p style="color:pink;font-size:calc(15 * var(--frozen-vh))">There is a</p></center>
+<center><p id="chance" style="color:yellow;font-size:calc(30 * var(--frozen-vh))"></p></center>
+<center><p style="color:pink;font-size:calc(15 * var(--frozen-vh))">chance of <a href="https://deltarune.com">DELTARUNE</a> releasing tomorrow.</p>
 <center>
-<img id="image" height=calc(20 * var(--frozen-vmin))>
+<img id="image" height=calc(30 * var(--frozen-vh))>
 <p id="funtext" style="color:white"></p>
 </center>
 </body>
