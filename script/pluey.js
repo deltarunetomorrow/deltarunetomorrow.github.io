@@ -1,11 +1,3 @@
-// get window size
-const vh = window.screen.height / 100;
-const vw = window.screen.width / 100;
-const vmin = Math.min(window.screen.height, window.screen.width) / 100;
-document.documentElement.style.setProperty('--frozen-vh', `${vh}px`);
-document.documentElement.style.setProperty('--frozen-vw', `${vw}px`);
-document.documentElement.style.setProperty('--frozen-vmin', `${vmin}px`);
-
 function pluey() {
 	// edit number of digits
 	const numDigits = 6;
