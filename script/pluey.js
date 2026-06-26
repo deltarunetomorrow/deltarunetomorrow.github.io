@@ -50,10 +50,15 @@ async function countdown() {
         timer = `0:00:00:00`;
     } else {
         let days = Math.floor(timeRemaining/day);
-        let hours = Math.floor((timeRemaining - days*day)/hour);
-        let minutes = Math.floor((timeRemaining - days*day - hours*hour)/minute);
-        let seconds = Math.floor((timeRemaining - days*day - hours*hour - minutes*minute)/second);
-        timer = `${days}:${num2str(hours)}:${num2str(minutes)}:${num2str(seconds)}`;
+        if (announced) {
+            let hours = Math.floor((timeRemaining - days*day)/hour);
+            let minutes = Math.floor((timeRemaining - days*day - hours*hour)/minute);
+            let seconds = Math.floor((timeRemaining - days*day - hours*hour - minutes*minute)/second);
+            timer = `${days}:${num2str(hours)}:${num2str(minutes)}:${num2str(seconds)}`;
+        }
+        else {
+            timer = `${days} left.`
+        }
     }
     document.getElementById("countdown").innerText = timer;
 }
