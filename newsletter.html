@@ -1,21 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-<meta>
-<title id="title">Is there a new Newsletter?</title>
-<link id="icon" rel="icon" type="image/x-icon" href="media/image/icon.webp">
-<style>
-      @font-face { font-family: "8BitOperator JVE"; src: url('media/font/8bitoperator JVE.woff'); } 
-      body {
-        font-family: "8BitOperator JVE";
-        background-color: black
+  <head>
+    <meta name="description" content="Is there a new Newsletter?">
+    <title id="title">Is there a new Newsletter?</title>
+    <link id="icon" rel="icon" type="image/x-icon" href="media/image/icon.webp">
+    <style>
+      @font-face { font-family: "8BitOperator JVE"; src: url('media/font/8bitoperator JVE.woff'); font-display: swap; }
+      body { font-family: "8BitOperator JVE"; background-color: black; }
+    </style>
+    <script>
+      "use strict";
+
+      const oldNewsletter = "/newsletters/ch5-release-day/";
+
+      function parseHTML(str) {
+          let tmp = document.implementation.createHTMLDocument();
+          tmp.body.outerHTML = str;
+          return tmp;
       }
-</style>
-<script src="script/newsletter.js"></script> 
-<script>
-(function(){setTimeout(newsletter,1);})();
-</script>
-</meta>
-<body style="background-color:black">
-<center><p id="newsletter" style="color:white;font-size:30vh"></p></center>
-</body>
+
+      async function newsletter() {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+              if (this.readyState == 4 && this.status == 200) {
+                  let htmlString = xhttp.responseText;
+                  let htmlDoc = parseHTML(htmlString);
+                  let newsletterLink = htmlDoc.body.childNodes[1].childNodes[1].childNodes[5].childNodes[1].href
+                  let p = document.getElementById("newsletter")
+                  if (oldNewsletter === newsletterLink) {
+                      document.body.style.backgroundColor = "red";
+                      p.innerText = "NO";
+                  } else {
+                      document.body.style.backgroundColor = "green";
+                      p.innerHTML = `<a href="https://toby.fangamer.com${newsletterLink}" style="color:white">YES</a>`;
+                  }
+              }
+          };
+          xhttp.open("GET", "https://toby.fangamer.com/newsletters/", true);
+          xhttp.send();
+      }
+
+      document.addEventListener("DOMContentLoaded", newsletter);
+    </script>
+  </head>
+  <body>
+    <main role="main">
+      <center><p id="newsletter" style="color:white;font-size:30vh"></p></center>
+    </main>
+  </body>
 </html>
