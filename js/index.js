@@ -27,8 +27,9 @@ const charWidth = 16;
 const charHeight = 32;
 const svgTextY = 26;
 
+let tooSmall = true;
 let dw_animation = 0;
-let darkzone = 1;
+let darkzone = 0;
 let files = new Map();
 let prevMsg = null;
 let prevViewport = null;
@@ -54,11 +55,17 @@ function parseHTML(str) {
 function calcViewport() {
     let vWidth = window.visualViewport.width;
     let vHeight = window.visualViewport.height;
-    let scale = 1;
-    while (originalWidth * scale <= vWidth && originalHeight * scale <= vHeight) {
-        scale += 1;
+    let scale = 0.5;
+    darkzone = 0;
+    if (vWidth >= originalWidth && vHeight >= originalHeight) {
+        scale = 1;
+        darkzone = 1;
+        tooSmall = false;
+        while (originalWidth * scale <= vWidth && originalHeight * scale <= vHeight) {
+            scale += 1;
+        }
+        scale = scale>1 ? scale-1 : scale;
     }
-    scale = scale>1 ? scale-1 : scale;
     let trueWidth = originalWidth * scale;
     let trueHeight = originalHeight * scale;
     let leftPosition = Math.floor((vWidth-trueWidth) / 2);
@@ -493,7 +500,7 @@ function movement() {
             xpos = h_left - right + xpos;
             w = true;
         } else {
-            darkzone = 1;
+            darkzone = tooSmall? 0 : 1;
         }
         if (w && !r) {
             document.getElementById("title").innerText = "*";
