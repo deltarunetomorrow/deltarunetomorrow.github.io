@@ -1,0 +1,24 @@
+@font-face {
+    font-family: "fnt_main";
+    src: url("../fnt/fnt_main.ttf");
+}
+
+body {
+    font-family: "fnt_main";
+}
+
+button {
+    font-family: "fnt_main";
+    font-size: 32px;
+    border: 3px solid #FFA040;
+    background-color: black;
+    color: #FFA040;
+    padding-left: 8px;
+}
+
+button:hover {
+    cursor: pointer;
+    border: 3px solid #FFFF00;
+    background-color: black;
+    color: #FFFF00;
+}
