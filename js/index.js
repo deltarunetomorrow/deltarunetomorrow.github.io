@@ -197,7 +197,7 @@ function displayInfo(viewport, msg) {
                         addedDefs.push(msg[i].color);
                     }
                     for (let j=0; j<xx.length; j++) {
-                        info += `<text fill="url(#shadow)" style="font-size: ${charHeight * viewport.scale}px;" x="${(xx[j] + 1) * viewport.scale}" y="${(y + 1) * viewport.scale}">${mystrings[j]}</text><text fill="url(${msg[i].color})" style="font-size: ${charHeight * viewport.scale}px;" x="${xx[j] * viewport.scale}" y="${y * viewport.scale}">${mystrings[j].replace(`DELTARUNE Chapter ${nextChapter}`, `<a href="https://deltarune.com" target"_blank"><tspan id="deltaruneRedirect">DELTARUNE Chapter ${nextChapter}</tspan></a>`)}</text>`;
+                        info += `<text fill="url(#shadow)" style="font-size: ${charHeight * viewport.scale}px;" x="${(xx[j] + 1) * viewport.scale}" y="${(y + 1) * viewport.scale}">${mystrings[j]}</text><text fill="url(${msg[i].color})" style="font-size: ${charHeight * viewport.scale}px;" x="${xx[j] * viewport.scale}" y="${y * viewport.scale}">${mystrings[j].replace(`DELTARUNE Chapter ${nextChapter}`, `<a href="https://deltarune.com" target="_blank"><tspan id="deltaruneRedirect">DELTARUNE Chapter ${nextChapter}</tspan></a>`)}</text>`;
                         y += textInterline + charHeight;
                     }
                     y -= textInterline + charHeight;
@@ -415,7 +415,6 @@ function saveImage() {
     let svgNode = parseHTML(document.getElementById("content").outerHTML);
     svgNode.style = "";
     let svgString = (new XMLSerializer()).serializeToString(svgNode);
-    console.log(svgString);
     let svg64 = btoa(svgString);
     let b64Start = "data:image/svg+xml;charset=utf-8;base64,";
     let image64 = b64Start + svg64;
@@ -424,6 +423,7 @@ function saveImage() {
     image.height = svgNode.height.baseVal.value;
     image.src = image64;
     image.onload = function() {
+        console.log("xd");
         let canvas = document.getElementById("screenshot");
         canvas.width = image.width;
         canvas.height = image.height;
