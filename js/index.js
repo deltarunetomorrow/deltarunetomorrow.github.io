@@ -204,13 +204,13 @@ function displayInfo(viewport, msg) {
                         addedDefs.push(msg[i].color);
                     }
                     for (let j=0; j<xx.length; j++) {
-                        info += `<text fill="url(#shadow)" style="font-size: ${charHeight * viewport.scale}px;" x="${(xx[j] + 1) * viewport.scale}" y="${(y + 1) * viewport.scale}">${mystrings[j]}</text><text fill="url(${msg[i].color})" style="font-size: ${charHeight * viewport.scale}px;" x="${xx[j] * viewport.scale}" y="${y * viewport.scale}">${mystrings[j].replace(`DELTARUNE Chapter ${nextChapter}`, `<a href="https://deltarune.com" target="_blank"><tspan id="deltaruneRedirect">DELTARUNE Chapter ${nextChapter}</tspan></a>`)}</text>`;
+                        info += `<text fill="url(#shadow)" style="font-size: ${charHeight * viewport.scale}px;" x="${(xx[j] + 1) * viewport.scale}" y="${(y + 1) * viewport.scale}">${mystrings[j]}</text><text fill="url(${msg[i].color})" style="font-size: ${charHeight * viewport.scale}px;" x="${xx[j] * viewport.scale}" y="${y * viewport.scale}">${mystrings[j].replace(`DELTARUNE Chapter ${nextChapter}`, `<a href="https://deltarune.com" target="_blank"><tspan id="deltaruneRedirectDark">DELTARUNE Chapter ${nextChapter}</tspan></a>`)}</text>`;
                         y += textInterline + charHeight;
                     }
                     y -= textInterline + charHeight;
                 } else {
                     for (let j=0; j<xx.length; j++) {
-                        info += `<text fill="${msg[i].color}" style="font-size: ${charHeight * viewport.scale}px;" x="${xx[j] * viewport.scale}" y="${y * viewport.scale}">${mystrings[j]}</text>`;
+                        info += `<text fill="${msg[i].color}" style="font-size: ${charHeight * viewport.scale}px;" x="${xx[j] * viewport.scale}" y="${y * viewport.scale}">${mystrings[j].replace(`DELTARUNE Chapter ${nextChapter}`, `<a href="https://deltarune.com" target="_blank"><tspan id="deltaruneRedirectLight">DELTARUNE Chapter ${nextChapter}</tspan></a>`)}</text>`;
                         y += textInterline + charHeight;
                     }
                     y -= textInterline + charHeight;
@@ -396,7 +396,7 @@ function display() {
     if (changed) {
         dark_boxes = [];
         let svg = `<svg xmlns="http://www.w3.org/2000/svg" id="content" width="${viewport.width}" height="${viewport.height}" style="position: absolute; top: ${viewport.top + ypos}px; left: ${viewport.left + xpos}px;">
-        <style>@font-face {font-family: "fnt_main"; src: url("${files.get("fnt/fnt_main.ttf").base64}");} text {font-family: "fnt_main";}#deltaruneRedirect:hover{fill: url(#deltaRedirect)}</style>
+        <style>@font-face {font-family: "fnt_main"; src: url("${files.get("fnt/fnt_main.ttf").base64}");} text {font-family: "fnt_main";}#deltaruneRedirectDark:hover{fill: url(#deltaRedirect)}#deltaruneRedirectLight:hover{fill:#0000FF}</style>
         <rect x="0" y="0" width="${viewport.width}" height="${viewport.height}" fill="black"></rect>
         <defs>
             <linearGradient id="shadow" x1="0%" x2="0%" y1="100%" y2="0%">

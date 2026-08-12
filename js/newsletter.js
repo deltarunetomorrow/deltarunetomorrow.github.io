@@ -1,7 +1,7 @@
 "use strict";
 
 // INSERT DATA
-const oldNewsletter = "/newsletters/ch5-release-day/";
+const oldNewsletter = "/newsletters/summer26/";
 // INSERT DATA
 
 const originalWidth = 640;
