@@ -88,8 +88,14 @@ function calcTime() {
             "timeLeft": `${daysLeft}:${(hoursLeft+100).toString().substring(1)}:${(minutesLeft+100).toString().substring(1)}:${(secondsLeft+100).toString().substring(1)}`
         };
     } else {
+        let percentage = `${Math.round((100/daysLeft)*Math.pow(10,6))/Math.pow(10,6)}`;
+        let integerPart = percentage.split(".")[0];
+        let decimalPart = percentage.split(".")[1] !== undefined ? percentage.split(".")[1] : "";
+        while (decimalPart.length < 6) {
+            decimalPart += "0";
+        }
         return {
-            "chance": `${Math.round(100/daysLeft*Math.pow(10,6))/Math.pow(10,6)}%`,
+            "chance": `${integerPart}.${decimalPart}%`,
             "timeLeft": `${daysLeft} left.`
         };
     }
