@@ -129,6 +129,7 @@ function drawText(num, time) {
     let info = "";
     for (let j=0; j<xx.length; j++) {
         info += `<span id="msg${time}" style="position:absolute;color:${textColor};font-size:${charHeight}px;left:${xx[j]}px;top:${y}px;">${mystrings[j]}</span>`;
+        document.getElementById("title").outerHTML = `<title id="title" class="title${time}">* ${audios[num][0]}</title>`;
         y += textInterline + charHeight;
     }
     document.getElementById("message").innerHTML = info;
@@ -154,6 +155,8 @@ function playSound(num) {
     audio.play();
     const time = (new Date()).getTime();
     drawText(num, time);
+    const title = document.getElementById("title");
+    title.innerText = "* " + audios[num][0];
     audio.onpause = function() {
         playing[playIndex] = -1;
         if (playing.filter(onlyUnique).length === 1 && playing.includes(-1)) {
@@ -163,6 +166,7 @@ function playSound(num) {
             tile.style.backgroundColor = prevcol;
         }
         document.querySelectorAll(`#msg${time}`).forEach((e) => e.remove());
+        document.querySelectorAll(`.title${time}`).forEach((e) => {e.innerText = "* "});
     }
 }
 
