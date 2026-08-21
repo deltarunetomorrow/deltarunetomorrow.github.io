@@ -1,6 +1,6 @@
 const audios = [
     ["All according to- all acording to plant!", "snd_flowery_voiceclip_all_according_to_all_according_to_plant.wav"],
-    ["Blingo Blizzard", "snd_flowery_voiceclip_blingo_blizzard.wav"],
+    ["Blingo Blizzard!", "snd_flowery_voiceclip_blingo_blizzard.wav"],
     ["Calling for help!", "snd_flowery_voiceclip_calling_for_help.wav"],
     ["Don't you like serving humans?", "snd_flowery_voiceclip_dont_you_like_serving_humans.wav"],
     ["Flowers blooms in your heart!", "snd_flowery_voiceclip_flowers_blooms_in_your_heart.wav"],
@@ -11,7 +11,7 @@ const audios = [
     ["Give to you!", "snd_flowery_voiceclip_give_to_you.wav"],
     ["Glue!", "snd_flowery_voiceclip_glue.wav"],
     ["Go home!", "snd_flowery_voiceclip_go_home.wav"],
-    ["Goodbye", "snd_flowery_voiceclip_goodbye.wav"],
+    ["Goodbye.", "snd_flowery_voiceclip_goodbye.wav"],
     ["Great style!", "snd_flowery_voiceclip_great_style.wav"],
     ["Grown like a turnip!", "snd_flowery_voiceclip_grown_like_a_turnip.wav"],
     ["Hah!", "snd_flowery_voiceclip_hah.wav"],
@@ -79,7 +79,7 @@ const audios = [
     ["Your dad!", "snd_flowery_voiceclip_your_dad.wav"],
     ["Your dad's my best friend!", "snd_flowery_voiceclip_yourdadsmybestfriend.wav"],
     ["You're a hero?", "snd_flowery_voiceclip_youre_a_hero.wav"],
-    ["Kris", "snd_flowery_voiceclip_kris.wav"]
+    ["Kris.", "snd_flowery_voiceclip_kris.wav"]
 ];
 
 const textInterline = 2;
