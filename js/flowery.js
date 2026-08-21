@@ -93,8 +93,8 @@ let boardLeft;
 let vWidth = null;
 let vHeight = null;
 
-function drawText(num) {
-    const textColor = "#fee502"
+function drawText(num, time) {
+    const textColor = "#fee502";
     let mystring = audios[num][0];
     if (mystring.lastIndexOf(" ") !== mystring.length - 1) {
         mystring += " ";
@@ -128,13 +128,23 @@ function drawText(num) {
     mystrings.push(mystring);
     let info = "";
     for (let j=0; j<xx.length; j++) {
-        info += `<span class="msg${num}" style="position:absolute;color:${textColor};font-size:${charHeight}px;left:${xx[j]}px;top:${y}px;">${mystrings[j]}</span>`;
+        info += `<span id="msg${time}" style="position:absolute;color:${textColor};font-size:${charHeight}px;left:${xx[j]}px;top:${y}px;">${mystrings[j]}</span>`;
         y += textInterline + charHeight;
     }
     document.getElementById("message").innerHTML = info;
 }
 
+let playing = [];
+let curIndex = playing.length;
+
+function onlyUnique(value, index, array) {
+    return array.indexOf(value) === index;
+}
+
 function playSound(num) {
+    curIndex = playing.length;
+    playing.push(num);
+    let playIndex = curIndex;
     let tile = document.getElementById(`tile${num}`);
     let prevcol = num%2==0?"#fee502":"#fff06f";
     let backcol = "#716a3c";
@@ -142,11 +152,18 @@ function playSound(num) {
     const audio = new Audio();
     audio.src = "snd/" + audios[num][1];
     audio.play();
+    const time = (new Date()).getTime();
+    drawText(num, time);
     audio.onpause = function() {
-        tile.style.backgroundColor = prevcol;
-        document.querySelectorAll(`.msg${num}`).forEach((e) => e.remove());
+        playing[playIndex] = -1;
+        if (playing.filter(onlyUnique).length === 1 && playing.includes(-1)) {
+            playing = [];
+        }
+        if (!playing.includes(num)) {
+            tile.style.backgroundColor = prevcol;
+        }
+        document.querySelectorAll(`#msg${time}`).forEach((e) => e.remove());
     }
-    drawText(num);
 }
 
 function drawBoard() {
