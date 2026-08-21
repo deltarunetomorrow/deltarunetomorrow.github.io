@@ -96,6 +96,9 @@ let vHeight = null;
 function drawText(num) {
     const textColor = "#fee502"
     let mystring = audios[num][0];
+    if (mystring.lastIndexOf(" ") !== mystring.length - 1) {
+        mystring += " ";
+    }
     let y = boardTop - charHeight*2 - textInterline*2;
     let x = boardLeft + Math.floor((boardSize - (mystring.length * charWidth))/2);
     let mystringSliced = null;
