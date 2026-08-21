@@ -198,8 +198,4 @@ function drawBoard() {
     soundboard.innerHTML = html;
 }
 
-function main() {
-    let interval = setInterval(drawBoard, 1000/30);
-}
-
-document.addEventListener("DOMContentLoaded", main);
+document.addEventListener("DOMContentLoaded", drawBoard);
