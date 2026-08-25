@@ -436,7 +436,6 @@ function saveImage() {
     image.height = svgNode.height.baseVal.value;
     image.src = image64;
     image.onload = function() {
-        console.log("xd");
         let canvas = document.getElementById("screenshot");
         canvas.width = image.width;
         canvas.height = image.height;
