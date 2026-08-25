@@ -30,6 +30,7 @@ let msg = " ";
 let mus = new Audio();
 mus.src = "snd/Underwater_Town.wav";
 mus.loop = true;
+
 function playMusic() {
     if (mus.paused) {
         document.getElementById("muslogo").src = "spr/spr_muslogo_ext.png";
@@ -485,12 +486,12 @@ function step() {
     // put the shi on the application surface
     let textYOffset = -8 * msg.split("#").length;
     surfaceSetTarget("applicationSurface");
-    surfaceDrawExtended("surf1", (textwidth - width)/2, (240 - height)/2 + ysin, 1, 1, 0, "#FFFFFF", image_alpha);
     for (let  i=1; i<3; i++) {
         surfaceDrawExtended("surf2", (textwidth - width)/2 + (ysin * i), (240 - height)/2 + (ysin * i), 1, 1, 0, "#FFFFFF", image_alpha / 4);
     }
     surfaceDrawExtended("surf2", (textwidth - width)/2, (240 - height)/2 + ysin, 1, 1, 0, "#FFFFFF", image_alpha);
     gpuSetBlend("screen");
+    surfaceDrawExtended("surf1", (textwidth - width)/2, (240 - height)/2 + ysin, 1, 1, 0, "#FFFFFF", image_alpha);
     surfaceDrawExtended("surf0", 0, (240 - height)/2 + ysin + textYOffset, 1, 1, 0, "#FFFFFF", image_alpha);
     surfaceDrawExtended("surf0", 0, (240 - height)/2 + ysin + textYOffset, 1, 1, 0, "#FFFFFF", image_alpha);
 
@@ -518,24 +519,6 @@ function main() {
 
 
 //////////////////// LOADING SCRIPTS ////////////////////
-async function getBase64(path) {
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", path);
-        xhr.responseType = "blob";
-        xhr.onload = function () {
-            const reader = new FileReader();
-            reader.readAsDataURL(xhr.response);
-            reader.onloadend = function () {
-                resolve(reader.result);
-            }
-        }
-        xhr.send();
-    })
-        .then((value) => {return value;})
-        .catch(() => {console.error(`Error reading file "${path}".`)});
-}
-
 async function loadImage(path) {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -554,13 +537,10 @@ async function load() {
         switch (path.split("/")[0]) {
             case "spr": {
                 let img = await loadImage(path);
-                let base64 = await getBase64(path);
-                data = {"img": img, "base64": base64};
+                data = {"img": img};
                 break;
             }
             default: {
-                let base64 = await getBase64(path);
-                data = {"base64": base64};
                 break;
             }
         }
