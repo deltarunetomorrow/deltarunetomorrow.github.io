@@ -98,66 +98,9 @@ function mergeColor(col1, col2, amount) {
 
 /////////////////////////////////////// DRAWING SCRIPTS ///////////////////////////////////////
 const Surfaces = new Map([["applicationSurface", applicationSurface]]);
-let currentBlend = "normal";
+let currentBlend = "source-over";
 let currentSurface = applicationSurface;
-let currentFont = "fnt_legend";
-let currentColour = "#FFFFFF";
-let currentAlpha = 1;
-let currentHAlign = "left";
-let currentVAlign = "top";
-let currentTarget = "applicationSurface";
-
-function surfaceExists(name) {
-    return Surfaces.has(name);
-}
-
-function surfaceCreate(name, width, height) {
-    let _surf = new OffscreenCanvas(width, height);
-    Surfaces.set(name, _surf);
-}
-
-function surfaceClear(name) {
-    if (!surfaceExists(name)) {
-        console.error(`Unknown surface "${name}".`);
-        return null;
-    }
-    let _surf = Surfaces.get(name);
-    _surf.getContext("2d").clearRect(0, 0, _surf.width, _surf.height);
-}
-
-function surfaceSetTarget(name) {
-    if (!surfaceExists(name)) {
-        console.error(`Unknown surface "${name}".`);
-        return null;
-    }
-    currentSurface = Surfaces.get(name);
-    currentTarget = name;
-}
-
-function drawSetBlend(name) {
-    switch(name) {
-        case "normal": {
-            currentBlend = "source-over";
-            break;
-        }
-        case "add": {
-            currentBlend = "lighter";
-            break;
-        }
-        case "mask": {
-            currentBlend = "destination-in";
-            break;
-        }
-        case "multiply": {
-            currentBlend = "multiply";
-            break;
-        }
-        default: {
-            console.error(`Unknown blend mode "${name}".`);
-            break;
-        }
-    }
-}
+let currentFont = "fnt_legend"
 
 function rotate(point, rad) {
     let matrix = [[Math.cos(rad), Math.sin(rad)], [-Math.sin(rad), Math.cos(rad)]];
@@ -204,85 +147,8 @@ function drawSpriteExtended(sprite, x, y, xscale, yscale, rot, colour, alpha) {
     _surf_ctx.drawImage(canvas_spr, x, y);
 }
 
-function drawSurfaceExtended(name, x, y, xscale, yscale, rot, colour, alpha) {
-    let img = Surfaces.get(name);
-    let width = Math.abs(img.width * xscale);
-    let height = Math.abs(img.height * yscale);
-    let rotationTranslate = calcRotationTranslation(width, height, rot);
-    let canvas_spr = new OffscreenCanvas(rotationTranslate.width, rotationTranslate.height);
-    let spr_ctx = canvas_spr.getContext("2d");
-    spr_ctx.imageSmoothingEnabled = false;
-    spr_ctx.translate(rotationTranslate.x, rotationTranslate.y);
-    spr_ctx.rotate(rot * Math.PI/180);
-    spr_ctx.scale(xscale, yscale);
-    spr_ctx.translate(xscale<0?(xscale*width):0, yscale<0?(yscale*height):0);
-    if (colour !== "#FFFFFF") {
-        spr_ctx.fillStyle = colour;
-        spr_ctx.fillRect(0, 0, rotationTranslate.width, rotationTranslate.height);
-        spr_ctx.globalCompositeOperation = "multiply";
-        spr_ctx.drawImage(img, 0, 0);
-        spr_ctx.globalCompositeOperation = "destination-in";
-    }
-    spr_ctx.drawImage(img, 0, 0);
-    let _surf_ctx = currentSurface.getContext("2d");
-    _surf_ctx.imageSmoothingEnabled = false;
-    _surf_ctx.globalCompositeOperation = currentBlend;
-    if (alpha >= 1) {
-        alpha = 1;
-    }
-    _surf_ctx.globalAlpha = alpha;
-    _surf_ctx.drawImage(canvas_spr, x, y);
-}
-
-function drawSpriteTiledExtended(sprite, x, y, xscale, yscale, colour, alpha) {
-    let spr = assets.get(sprite);
-    let width = Math.abs(spr.width * xscale);
-    let height = Math.abs(spr.height * yscale);
-    let xx_start = x;
-    let yy_start = y;
-    while (xx_start < -width) {
-        xx_start += width;
-    }
-    while (yy_start < -height) {
-        yy_start += height;
-    }
-    while (xx_start > 0) {
-        xx_start -= width;
-    }
-    while (yy_start > 0) {
-        yy_start -= height;
-    }
-    let xx = xx_start;
-    let yy = yy_start;
-    while (yy < currentSurface.height) {
-        while(xx < currentSurface.width) {
-            drawSpriteExtended(sprite, xx, yy, xscale, yscale, 0, colour, alpha);
-            xx += width;
-        }
-        yy += height;
-        xx = xx_start;
-    }
-}
-
-function drawClearAlpha(colour, alpha) {
-    let _col = hexToRgb(colour);
-    let _ctx = currentSurface.getContext("2d");
-    _ctx.fillStyle = `rgb(${_col.red} ${_col.green} ${_col.blue} / ${alpha*100}%)`;
-    _ctx.globalCompositeOperation = "copy";
-    _ctx.fillRect(0, 0, currentSurface.width, currentSurface.height);
-    _ctx.globalCompositeOperation = currentBlend;
-}
-
 
 /////////////////////////////////////// TEXT SCRIPTS ///////////////////////////////////////
-function drawSetFont(font) {
-    if (Fonts[font] === undefined) {
-        console.error(`Unknown font "${font}".`);
-        return null;
-    }
-    currentFont = font;
-}
-
 function stringWidth(str) {
     let _strw_lines = str.split("\n");
     let _strw_res = 0;
@@ -298,16 +164,6 @@ function stringWidth(str) {
     }
     return _strw_res;
 }
-
-function getChar(ch) {
-    let _fnt_char = Fonts[currentFont][ch];
-    let _fnt_canvas = assets.get(`fnt/${currentFont}.png`);
-    let _fnt_char_canvas = new OffscreenCanvas(_fnt_char.width, _fnt_char.height);
-    let _char_data = _fnt_canvas.getImageData(_fnt_char.left, _fnt_char.top, _fnt_char.width, _fnt_char.height);
-    _fnt_char_canvas.getContext("2d").putImageData(_char_data, 0, 0);
-    return _fnt_char_canvas;
-}
-
 
 
 
@@ -341,14 +197,133 @@ function calcTime() {
     msg = msg.toUpperCase();
 }
 
+const preRendered = new Map();
 let textwidth = 320;
 let width = 150;
 let height = 90;
 let siner = 0;
 let image_alpha = 0;
 
-function drawTextLegend(msg) {
+function drawIconTexture() {
+    let tilespr = assets.get("spr/IMAGE_DEPTH_EXTEND_MONO_SEAMLESS.png");
+    let tilespr_canvas = new OffscreenCanvas(tilespr.width, tilespr.height);
+    let tilespr_ctx = tilespr_canvas.getContext("2d");
+    tilespr_ctx.fillStyle = "#42D0FF";
+    tilespr_ctx.fillRect(0, 0, tilespr.width, tilespr.height);
+    tilespr_ctx.globalCompositeOperation = "multiply";
+    tilespr_ctx.drawImage(tilespr, 0, 0);
+    let res = new OffscreenCanvas(tilespr.width, tilespr.height);
+    let ctx = res.getContext("2d");
+    ctx.globalCompositeOperation = "lighter";
+    ctx.drawImage(tilespr_canvas, 0, 0);
+    ctx.drawImage(tilespr_canvas, 0, 0);
+    ctx.drawImage(tilespr_canvas, 0, 0);
+    return res;
+}
+
+function drawTextTexture() {
+    let tiletex = assets.get("spr/IMAGE_DEPTH_EXTEND_SEAMLESS.png");
+    let tiletex_canvas = new OffscreenCanvas(tiletex.width, tiletex.height);
+    let tiletex_ctx = tiletex_canvas.getContext("2d");
+    tiletex_ctx.fillStyle = "#00FFFF";
+    tiletex_ctx.fillRect(0, 0, tiletex.width, tiletex.height);
+    tiletex_ctx.globalAlpha = 0.6;
+    tiletex_ctx.drawImage(tiletex, 0, 0);
+    let res = new OffscreenCanvas(tiletex.width, tiletex.height);
+    let ctx = res.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.globalCompositeOperation = "lighter";
+    ctx.drawImage(tiletex_canvas, 0, 0);
+    ctx.drawImage(tiletex_canvas, 0, 0);
+    return res;
+}
+
+function drawGradient() {
+    let spr_gradient20 = "spr/spr_gradient20.png";
+    let img_grad = assets.get(spr_gradient20);
+    currentSurface = new OffscreenCanvas(width, height);
+    drawSpriteExtended(spr_gradient20, 0, 0, width / 20, -3, 0, "#000000", 1);
+    drawSpriteExtended(spr_gradient20, 0, 0 + height - img_grad.height*3, width / 20, 3, 0, "#000000", 1);
+    drawSpriteExtended(spr_gradient20, 0, 0, height / 20, 3, 90, "#000000", 1);
+    drawSpriteExtended(spr_gradient20, width - img_grad.height*3, 0, height / 20, 3, -90, "#000000", 1);
+    res = currentSurface;
+    currentSurface = applicationSurface;
+    return res;
+}
+
+function drawPattern(img, x, y, rectWidth, rectHeight) {
+    let res = new OffscreenCanvas(rectWidth, rectHeight);
+    let ctx = res.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    let width = img.width;
+    let height = img.height;
+    let xx_start = x;
+    let yy_start = y;
+    while (xx_start < -width) {
+        xx_start += width;
+    }
+    while (yy_start < -height) {
+        yy_start += height;
+    }
+    while (xx_start > 0) {
+        xx_start -= width;
+    }
+    while (yy_start > 0) {
+        yy_start -= height;
+    }
+    let xx = xx_start;
+    let yy = yy_start;
+    while (yy < rectHeight) {
+        xx = xx_start;
+        while (xx < rectWidth) {
+            ctx.drawImage(img, xx, yy);
+            xx += width;
+        }
+        yy += height;
+    }
+    return res;
+}
+
+function renderTextures() {
+    let iconTexture = drawIconTexture();
+    let textTexture = drawTextTexture();
+    let gradient = drawGradient();
+    preRendered.set("iconTexture", iconTexture);
+    preRendered.set("textTexture", textTexture);
+    preRendered.set("gradient", gradient);
+}
+
+function drawIcon() {
+    let iconTexture = preRendered.get("iconTexture");
+    let icon = assets.get(icon_sprite);
+    let res = drawPattern(iconTexture, Math.ceil(siner/2), Math.ceil(siner/2), width, height);
+    let ctx = res.getContext("2d");
+    ctx.globalCompositeOperation = "destination-in";
+    ctx.drawImage(icon, Math.floor((width - icon.width)/2), Math.floor((width - icon.width)/2));
+    return res;
+}
+
+function drawFog() {
+    let linecol = mergeColor("#8BE9EF", "#17EDFF", 0.5 + (Math.sin(siner/120) * 0.5));
+    let tiletex = assets.get("spr/IMAGE_DEPTH_EXTEND_SEAMLESS.png");
+    let tiletex_canvas = new OffscreenCanvas(tiletex.width, tiletex.height);
+    let tiletex_ctx = tiletex_canvas.getContext("2d");
+    tiletex_ctx.fillStyle = linecol;
+    tiletex_ctx.fillRect(0, 0, tiletex.width, tiletex.height);
+    tiletex_ctx.globalCompositeOperation = "multiply";
+    tiletex_ctx.drawImage(tiletex, 0, 0);
+    let res = drawPattern(tiletex_canvas, Math.ceil(-siner/2), Math.ceil(-siner/2), width, height);
+    let grad = preRendered.get("gradient");
+    let ctx = res.getContext("2d");
+    ctx.globalCompositeOperation = "multiply";
+    ctx.drawImage(grad, 0, 0);
+    return res;
+}
+
+function drawText() {
     let text_surf = new OffscreenCanvas(currentSurface.width, currentSurface.height);
+    let fontGlyphs = Fonts["fnt_legend"];
+    let fontLegend = assets.get("fnt/fnt_legend.png");
     let text_ctx = text_surf.getContext("2d");
     let msg_split = msg.split("#");
     for (let i = 0; i < msg_split.length; i++) {
@@ -368,90 +343,57 @@ function drawTextLegend(msg) {
                 if (char === "L") {
                     x_offset = 1;
                 }
-                let char_spr = getChar(char);
-                text_ctx.drawImage(char_spr, tx + x_offset, ty);
-                tx += Fonts["fnt_legend"][char].shift;
+                let charSpr = fontGlyphs[char];
+                text_ctx.drawImage(fontLegend, charSpr.left, charSpr.top, charSpr.width,  charSpr.height, tx + x_offset, ty, charSpr.width, charSpr.height);
+                tx += charSpr.shift;
                 tx += kern;
             }
         }
     }
-    let _ctx = currentSurface.getContext("2d");
-    _ctx.globalCompositeOperation = "destination-in";
-    _ctx.drawImage(text_surf, 0, 0);
-    _ctx.globalCompositeOperation = currentBlend;
+    let textTexture = preRendered.get("textTexture");
+    let res = drawPattern(textTexture, 0, 0, textwidth, height);
+    let ctx = res.getContext("2d");
+    ctx.globalCompositeOperation = "destination-in";
+    ctx.drawImage(text_surf, 0, 0);
+    return res;
 }
 
-function draw() {
-    surfaceClear("applicationSurface");
-    let propblue = "#42D0FF";
-    let tilespr = "spr/IMAGE_DEPTH_EXTEND_MONO_SEAMLESS.png";
-    let tiletex = "spr/IMAGE_DEPTH_EXTEND_SEAMLESS.png";
-    let spr_gradient20 = "spr/spr_gradient20.png";
-    let ysin = Math.cos(siner / 12) * 4;
+let ctx = applicationSurface.getContext("2d");
+
+function drawFrame() {
+    ctx.clearRect(0, 0, applicationSurface.width, applicationSurface.height);
+    let ysin = Math.cos(siner/12)*4;
     image_alpha = lerp(image_alpha, 1.2, 0.1);
-    if (!surfaceExists("surf0")) {
-        surfaceCreate("surf0", textwidth, height);
-    }
-    if (!surfaceExists("surf1")) {
-        surfaceCreate("surf1", width, height);
-    }
-    if (!surfaceExists("surf2")) {
-        surfaceCreate("surf2", width, height);
-    }
-    surfaceSetTarget("surf0");
-    drawSetBlend("normal");
-    drawSpriteTiledExtended(tilespr, Math.ceil(siner/2), Math.ceil(siner/2), 1, 1, propblue, 1);
-    drawSetBlend("mask");
-    let img_icon_sprite = assets.get(icon_sprite);
-    drawSpriteExtended(icon_sprite, Math.floor((width - img_icon_sprite.width) / 2), 28, 1, 1, 0, "#FFFFFF", 1);
-    drawSetBlend("normal");
-    let linecol = mergeColor("#8BE9EF", "#17EDFF", 0.5 + (Math.sin(siner/120) * 0.5));
-    surfaceSetTarget("surf2");
-    drawSpriteTiledExtended(tiletex, Math.ceil(-siner/2), Math.ceil(siner/2), 1, 1, linecol, 1);
-    drawSetBlend("multiply");
-    let img_grad = assets.get(spr_gradient20);
-    drawSpriteExtended(spr_gradient20, 0, 0, width / 20, -3, 0, "#000000", 1);
-    drawSpriteExtended(spr_gradient20, 0, 0 + height - img_grad.height*3, width / 20, 3, 0, "#000000", 1);
-    drawSpriteExtended(spr_gradient20, 0, 0, height / 20, 3, 90, "#000000", 1);
-    drawSpriteExtended(spr_gradient20, width - img_grad.height*3, 0, height / 20, 3, -90, "#000000", 1);
-    surfaceSetTarget("surf1");
-    drawSetBlend("add");
-    drawSurfaceExtended("surf0", 0, 0, 1, 1, 0, "#FFFFFF", 1);
-    drawSurfaceExtended("surf0", 0, 0, 1, 1, 0, "#FFFFFF", 1);
-    drawSurfaceExtended("surf0", 0, 0, 1, 1, 0, "#FFFFFF", 1);
-    drawSetBlend("normal");
-    surfaceSetTarget("surf0"),
-    drawClearAlpha("#00FFFF", 1);
-    drawSpriteTiledExtended(tiletex, Math.ceil(siner/2), Math.ceil(siner/2), 1, 1, "#FFFFFF", 0.6);
-    drawTextLegend(msg);
+    let icon = drawIcon();
+    let fog = drawFog();
+    let text = drawText();
+    ctx.imageSmoothingEnabled = false;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = image_alpha / 4;
     let textYOffset = 16 * msg.split("#").length;
-    surfaceSetTarget("applicationSurface");
     for (let  i=1; i<3; i++) {
-        drawSurfaceExtended("surf1", (applicationSurface.width - width*2)/2 + (ysin * i*2), (applicationSurface.height - height)/2 + (ysin * i*2) -textYOffset*2, 2, 2, 0, "#FFFFFF", image_alpha / 4);
+        ctx.drawImage(icon, (applicationSurface.width - width*2)/2 + (ysin * i*2), (applicationSurface.height - height)/2 + +ysin + (ysin * i*2) -textYOffset*2, width*2, height*2);
     }
-    drawSurfaceExtended("surf1", (applicationSurface.width - width*2)/2, (applicationSurface.height - height)/2 + ysin -textYOffset*2, 2, 2, 0, "#FFFFFF", image_alpha);
-    drawSetBlend("add");
-    drawSurfaceExtended("surf2", (applicationSurface.width - width*2)/2, (applicationSurface.height - height)/2 + ysin -textYOffset*2, 2, 2, 0, "#FFFFFF", image_alpha);
-    drawSurfaceExtended("surf0", 0, (applicationSurface.height - height)/2 + ysin - textYOffset*2 -28, 2, 2, 0, "#FFFFFF", image_alpha);
-    drawSurfaceExtended("surf0", 0, (applicationSurface.height - height)/2 + ysin - textYOffset*2 -28, 2, 2, 0, "#FFFFFF", image_alpha);
-    surfaceClear("surf0");
-    surfaceClear("surf1");
+    ctx.globalAlpha = image_alpha >= 1? 1 : image_alpha;
+    ctx.drawImage(icon, (applicationSurface.width - width*2)/2, (applicationSurface.height - height)/2 + ysin -textYOffset*2, width*2, height*2);
+    ctx.globalCompositeOperation = "lighter";
+    ctx.drawImage(fog, (applicationSurface.width - width*2)/2, (applicationSurface.height - height)/2 + ysin -textYOffset*2, width*2, height*2);
+    ctx.drawImage(text, 0, (applicationSurface.height - height)/2 + ysin - textYOffset*2 -28, applicationSurface.width, height*2);
     siner += 1;
 }
 
 function main() {
+    renderTextures();
     let interval = setInterval(function() {
-        // let _start = (new Date()).getTime();
+        let _start = (new Date()).getTime();
         calcTime();
-        draw();
-        /*
+        drawFrame();
         let duration = (new Date()).getTime() - _start
         if (duration >= 1000/33) {
             console.log("/////////////////////////// YO ///////////////////////////");
         } else {
             console.log(duration);
         }
-        */
     }, 1000/30);
 }
 
@@ -483,18 +425,15 @@ async function loadImage(path) {
 async function loadImages() {
     for (let path of paths) {
         let img = await loadImage(path);
-        if (path.startsWith("fnt")) {
-            let _fnt_canvas = new OffscreenCanvas(img.width, img.height);
-            let _fnt_ctx = _fnt_canvas.getContext("2d");
-            _fnt_ctx.drawImage(img, 0, 0);
-            img = _fnt_canvas.getContext("2d");
-        }
         assets.set(path, img);
     }
     main();
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    applicationSurface.style.position = "absolute";
+    applicationSurface.style.top = `${(window.visualViewport.height - applicationSurface.height)/2}px`;
+    applicationSurface.style.left = `${(window.visualViewport.width - applicationSurface.width)/2}px`;
     document.body.appendChild(applicationSurface);
     loadImages();
 });
