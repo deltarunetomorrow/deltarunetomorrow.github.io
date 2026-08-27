@@ -372,7 +372,7 @@ function drawFrame() {
     ctx.globalAlpha = image_alpha / 4;
     let textYOffset = 16 * msg.split("#").length;
     for (let  i=1; i<3; i++) {
-        ctx.drawImage(icon, (applicationSurface.width - width*2)/2 + (ysin * i*2), (applicationSurface.height - height)/2 + +ysin + (ysin * i*2) -textYOffset*3, width*2, height*2);
+        ctx.drawImage(icon, (applicationSurface.width - width*2)/2 + (ysin * i*2), (applicationSurface.height - height)/2 + (ysin * i*2) -textYOffset*3, width*2, height*2);
     }
     ctx.globalAlpha = image_alpha >= 1? 1 : image_alpha;
     ctx.drawImage(icon, (applicationSurface.width - width*2)/2, (applicationSurface.height - height)/2 + ysin -textYOffset*3, width*2, height*2);
