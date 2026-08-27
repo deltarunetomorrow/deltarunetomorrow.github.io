@@ -1,18 +1,6 @@
 "use strict";
 
-// INSERT DATA HERE
-const releaseDate = new Date(2027, 11, 31, 23, 59, 59);
-const redirects = ["https://toby.fangamer.com/newsletters/summer26/#:~:text=I%20believe%20we%20will%20be%20able%20to%20release%20Chapter%206%20in%202027", "newsletter.html"];
-const announced = false;
-const nextChapter = 6;
-// INSERT DATA HERE
-
-const releaseDateTime = releaseDate.getTime();
-const months = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
-const secondsMs = 1000;
-const minutesMs = secondsMs * 60;
-const hoursMs = minutesMs * 60;
-const daysMs = hoursMs * 24;
+let time;
 
 const originalWidth = 640;
 const originalHeight = 480;
@@ -74,32 +62,6 @@ function calcViewport() {
 }
 
 let viewport = calcViewport();
-
-function calcTime() {
-    let currentDate = (new Date()).getTime();
-    let timeLeft = releaseDateTime - currentDate;
-    let daysLeft = Math.floor(timeLeft / daysMs);
-    let hoursLeft = Math.floor((timeLeft-daysLeft*daysMs) / hoursMs)
-    let minutesLeft = Math.floor((timeLeft-daysLeft*daysMs-hoursLeft*hoursMs) / minutesMs);
-    let secondsLeft = Math.floor((timeLeft-daysLeft*daysMs-hoursLeft*hoursMs-minutesLeft*minutesMs) / secondsMs);
-    if (announced) {
-        return {
-            "chance": daysLeft===1.0?"100.000000%":"0.000000%",
-            "timeLeft": `${daysLeft}:${(hoursLeft+100).toString().substring(1)}:${(minutesLeft+100).toString().substring(1)}:${(secondsLeft+100).toString().substring(1)}`
-        };
-    } else {
-        let percentage = `${Math.round((100/daysLeft)*Math.pow(10,6))/Math.pow(10,6)}`;
-        let integerPart = percentage.split(".")[0];
-        let decimalPart = percentage.split(".")[1] !== undefined ? percentage.split(".")[1] : "";
-        while (decimalPart.length < 6) {
-            decimalPart += "0";
-        }
-        return {
-            "chance": `${integerPart}.${decimalPart}%`,
-            "timeLeft": `${daysLeft} left.`
-        };
-    }
-}
 
 function getOrdinal(number) {
     if (number.toString().endsWith("1") && !(number.toString().endsWith("11"))) {
@@ -163,6 +125,7 @@ function create_msgbox_dark(x1, y1, x2, y2, scale, box_id, makeInnerbox) {
 }
 
 function displayInfo(viewport, msg) {
+    // "papyrus' special" code
     let x = margin;
     let y = margin;
     let defs = "";
@@ -323,10 +286,29 @@ function displayInfo(viewport, msg) {
                                 </linearGradient>`;
                         addedDefs.push(msg[i].color);
                     }
-                    info += box + `<text fill="url(#shadow)" style="font-size: ${charHeight * viewport.scale}px;" x="${(x + 1) * viewport.scale}" y="${(y + 1) * viewport.scale}">${mystring}</text><text fill="url(${msg[i].color})" style="font-size: ${charHeight * viewport.scale}px;" x="${x * viewport.scale}" y="${y * viewport.scale}">${mystring}</text>`;
+                    let propLink = "#42D0FF";
+                    if (!addedDefs.includes(propLink)) {
+                        defs += `<linearGradient id="${propLink.substring(1)}" x1="0%" x2="0%" y1="100%" y2="0%">
+                                    <stop offset="0%" stop-color="${propLink}"></stop>
+                                    <stop offset="100%" stop-color="#FFFFFF"></stop>
+                                </linearGradient>`;
+                        addedDefs.push(propLink);
+                    }
+                    if (mystring === time.timeLeft) {
+                        style += `<style>#timeLeft:hover{fill:url("${propLink}");}</style>`;
+                        info += box + `<a href="prophecy.html" target="_blank"><text fill="url(#shadow)" style="font-size: ${charHeight * viewport.scale}px;" x="${(x + 1) * viewport.scale}" y="${(y + 1) * viewport.scale}">${mystring}</text><text id="timeLeft" fill="url(${msg[i].color})" style="font-size: ${charHeight * viewport.scale}px;" x="${x * viewport.scale}" y="${y * viewport.scale}">${mystring}</text></a>`;
+                    } else {
+                        info += box + `<text fill="url(#shadow)" style="font-size: ${charHeight * viewport.scale}px;" x="${(x + 1) * viewport.scale}" y="${(y + 1) * viewport.scale}">${mystring}</text><text fill="url(${msg[i].color})" style="font-size: ${charHeight * viewport.scale}px;" x="${x * viewport.scale}" y="${y * viewport.scale}">${mystring}</text>`;
+                    }
                 } else {
                     box = create_msgbox_light((x-textMarginLeft)*viewport.scale, (y-textMarginTop-svgTextY)*viewport.scale, (x+mystring.length*charWidth+textMarginLeft)*viewport.scale, (y-svgTextY+charHeight+textMarginBottom)*viewport.scale, viewport.scale);
-                    info += box + `<text fill="${msg[i].color}" style="font-size: ${charHeight * viewport.scale}px;" x="${x * viewport.scale}" y="${y * viewport.scale}">${mystring}</text>`;
+                    let propLink = "#42D0FF";
+                    if (mystring === time.timeLeft) {
+                        style += `<style>#timeLeft:hover{fill:${propLink};}</style>`;
+                        info += box + `<a href="prophecy.html" target="_blank"><text id="timeLeft" fill="${msg[i].color}" style="font-size: ${charHeight * viewport.scale}px;" x="${x * viewport.scale}" y="${y * viewport.scale}">${mystring}</text></a>`;
+                    } else {
+                        info += box + `<text fill="${msg[i].color}" style="font-size: ${charHeight * viewport.scale}px;" x="${x * viewport.scale}" y="${y * viewport.scale}">${mystring}</text>`;
+                    }
                 }
                 y += - svgTextY + charHeight + textMarginBottom + border + extraBorder;
                 x = margin;
@@ -343,7 +325,7 @@ function display() {
     if(!activated) {
         viewport = calcViewport();
     }
-    let time = calcTime();
+    time = calcTime();
     let msg = [
         {"text": "There is a", "type": "normal", "color": "#FFFFFF"},
         {"text": time.chance, "type": "big", "color": "#FFFF00"},
@@ -575,60 +557,54 @@ function main() {
     }
 }
 
-function load() {
-    let resetForm = document.getElementById("reset");
-    resetForm.addEventListener("reset", main);
-    // setting up paths
-    let paths = ["spr/spr_textbox_left.png", "spr/spr_textbox_top.png", "spr/spr_heart.png"];
-    for (let i = 0; i < 8; i++) {
-        paths.push(`spr/spr_textbox_topleft_${i}.png`);
-    }
-    paths.push("fnt/fnt_main.ttf");
-    // loading the files and base64 encoding
-    let spritesNumber = paths.filter((p) => p.endsWith(".png")).length;
-    let spritesLoaded = 0;
-    let othersNumber = paths.length - spritesNumber;
-    let othersLoaded = 0;
-    for (let path of paths) {
-        if (path.endsWith(".png")) {
-            let spr = new Image();
-            spr.src = path;
-            spr.onload = async function(event) {
-                let sprLoaded = event.target;
-                let xhr = new XMLHttpRequest();
-                xhr.onload = function () {
-                    let reader = new FileReader();
-                    reader.onloadend = function () {
-                        files.set(path, {"image": sprLoaded, "base64": reader.result});
-                        spritesLoaded += 1;
-                        if (spritesLoaded === spritesNumber && othersLoaded === othersNumber) {
-                            resetForm.reset();
-                        }
-                    };
-                    reader.readAsDataURL(xhr.response);
-                };
-                xhr.open("GET", path);
-                xhr.responseType = "blob";
-                xhr.send();
+async function getBase64(path) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", path);
+        xhr.responseType = "blob";
+        xhr.onload = function () {
+            const reader = new FileReader();
+            reader.readAsDataURL(xhr.response);
+            reader.onloadend = function () {
+                resolve(reader.result);
             }
-        } else {
-            let xhr = new XMLHttpRequest();
-            xhr.onload = function () {
-                let reader = new FileReader();
-                reader.onloadend = function () {
-                    files.set(path, {"base64": reader.result});
-                    othersLoaded += 1;
-                    if (spritesLoaded === spritesNumber && othersLoaded === othersNumber) {
-                        resetForm.reset();
-                    }
-                };
-                reader.readAsDataURL(xhr.response);
-            };
-            xhr.open("GET", path);
-            xhr.responseType = "blob";
-            xhr.send();
         }
+        xhr.send();
+    })
+        .then((value) => {return value;})
+        .catch(() => {console.error(`Error reading file "${path}".`)});
+}
+
+async function loadImage(path) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = path;
+        img.onload = function(event) {
+            resolve(event.target);
+        }
+    })
+        .then((value) => {return value;})
+        .catch(() => {console.error(`Error reading image "${path}".`)});
+}
+
+let paths = ["spr/spr_textbox_left.png", "spr/spr_textbox_top.png", "spr/spr_heart.png"];
+for (let i = 0; i < 8; i++) {
+    paths.push(`spr/spr_textbox_topleft_${i}.png`);
+}
+paths.push("fnt/fnt_main.ttf");
+
+async function load() {
+    for (let path of paths) {
+        let data = {};
+        if (path.startsWith("spr")) {
+            let img = await loadImage(path);
+            data["image"] = img;
+        }
+        let base64 = await getBase64(path);
+        data["base64"] = base64;
+        files.set(path, data)
     }
+    main();
 }
 
 document.addEventListener("DOMContentLoaded", load);

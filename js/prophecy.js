@@ -14,8 +14,6 @@ applicationSurface.height = 480;
 
 /////////////////////////////////////// INSERT DATA HERE ///////////////////////////////////////
 let icon_sprite = "spr/spr_dw_church_prophecy_initial2_icon.png";
-const releaseDate = new Date(2027, 11, 31, 23, 59, 59);
-const announced = false;
 let msg = " ";
 /////////////////////////////////////// INSERT DATA HERE ///////////////////////////////////////
 
@@ -176,27 +174,6 @@ function stringWidth(str) {
 
 
 /////////////////////////////////////// MAIN SCRIPT ///////////////////////////////////////
-const releaseDateTime = releaseDate.getTime();
-const secondsMs = 1000;
-const minutesMs = secondsMs * 60;
-const hoursMs = minutesMs * 60;
-const daysMs = hoursMs * 24;
-
-function calcTime() {
-    let currentDate = (new Date()).getTime();
-    let timeLeft = releaseDateTime - currentDate;
-    let daysLeft = Math.floor(timeLeft / daysMs);
-    let hoursLeft = Math.floor((timeLeft-daysLeft*daysMs) / hoursMs)
-    let minutesLeft = Math.floor((timeLeft-daysLeft*daysMs-hoursLeft*hoursMs) / minutesMs);
-    let secondsLeft = Math.floor((timeLeft-daysLeft*daysMs-hoursLeft*hoursMs-minutesLeft*minutesMs) / secondsMs);
-    if (announced) {
-        msg = `${daysLeft}:${(hoursLeft+100).toString().substring(1)}:${(minutesLeft+100).toString().substring(1)}:${(secondsLeft+100).toString().substring(1)}`;
-    } else {
-        msg = `${daysLeft} left.`;
-    }
-    msg = msg.toUpperCase();
-}
-
 const preRendered = new Map();
 let textwidth = 320;
 let width = 150;
@@ -251,9 +228,10 @@ function drawGradient() {
     return res;
 }
 
-function drawPattern(img, x, y, rectWidth, rectHeight) {
+function drawPattern(img, x, y, rectWidth, rectHeight, alpha) {
     let res = new OffscreenCanvas(rectWidth, rectHeight);
     let ctx = res.getContext("2d");
+    ctx.globalAlpha = alpha;
     ctx.imageSmoothingEnabled = false;
     let width = img.width;
     let height = img.height;
@@ -281,6 +259,7 @@ function drawPattern(img, x, y, rectWidth, rectHeight) {
         }
         yy += height;
     }
+    ctx.globalAlpha = 1;
     return res;
 }
 
@@ -296,7 +275,7 @@ function renderTextures() {
 function drawIcon() {
     let iconTexture = preRendered.get("iconTexture");
     let icon = assets.get(icon_sprite);
-    let res = drawPattern(iconTexture, Math.ceil(siner/2), Math.ceil(siner/2), width, height);
+    let res = drawPattern(iconTexture, Math.ceil(siner/2), Math.ceil(siner/2), width, height, 1);
     let ctx = res.getContext("2d");
     ctx.globalCompositeOperation = "destination-in";
     ctx.drawImage(icon, Math.floor((width - icon.width)/2), Math.floor((width - icon.width)/2));
@@ -305,6 +284,8 @@ function drawIcon() {
 
 function drawFog() {
     let linecol = mergeColor("#8BE9EF", "#17EDFF", 0.5 + (Math.sin(siner/120) * 0.5));
+    // linecol = "#FF0000";
+    let gradalpha = 1;
     let tiletex = assets.get("spr/IMAGE_DEPTH_EXTEND_SEAMLESS.png");
     let tiletex_canvas = new OffscreenCanvas(tiletex.width, tiletex.height);
     let tiletex_ctx = tiletex_canvas.getContext("2d");
@@ -312,7 +293,7 @@ function drawFog() {
     tiletex_ctx.fillRect(0, 0, tiletex.width, tiletex.height);
     tiletex_ctx.globalCompositeOperation = "multiply";
     tiletex_ctx.drawImage(tiletex, 0, 0);
-    let res = drawPattern(tiletex_canvas, Math.ceil(-siner/2), Math.ceil(-siner/2), width, height);
+    let res = drawPattern(tiletex_canvas, Math.ceil(-siner/2), Math.ceil(-siner/2), width, height, gradalpha);
     let grad = preRendered.get("gradient");
     let ctx = res.getContext("2d");
     ctx.globalCompositeOperation = "multiply";
@@ -386,7 +367,7 @@ function main() {
     renderTextures();
     let interval = setInterval(function() {
         let _start = (new Date()).getTime();
-        calcTime();
+        msg = calcTime().timeLeft.toUpperCase();
         drawFrame();
         let duration = (new Date()).getTime() - _start
         /*

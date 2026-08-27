@@ -50,28 +50,30 @@ function calcViewport() {
     return {"scale": scale, "width": trueWidth, "height": trueHeight, "left": leftPosition, "top": topPosition};
 }
 
-function newsletter() {
-    let newsletterLoad = document.getElementById("newsletterLoad");
-    newsletterLoad.addEventListener("reset", display);
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            let htmlString = xhttp.responseText;
-            let htmlDoc = parseHTML(htmlString);
-            let newsletterLink = htmlDoc.body.childNodes[1].childNodes[1].childNodes[5].childNodes[1].href;
-            if (oldNewsletter === newsletterLink) {
-                backgroundColor = "red";
-            } else {
-                isThere = true;
-                backgroundColor = "green";
-                redirects[0] = `https://toby.fangamer.com${newsletterLink}`;
+async function newsletter() {
+    return new Promise((resolve, reject) => {
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                let htmlString = xhttp.responseText;
+                let htmlDoc = parseHTML(htmlString);
+                let newsletterLink = htmlDoc.body.childNodes[1].childNodes[1].childNodes[5].childNodes[1].href;
+                if (oldNewsletter === newsletterLink) {
+                    backgroundColor = "red";
+                } else {
+                    isThere = true;
+                    backgroundColor = "green";
+                    redirects[0] = `https://toby.fangamer.com${newsletterLink}`;
+                }
+                document.body.style.backgroundColor = backgroundColor;
+                resolve([backgroundColor, isThere, redirects]);
             }
-            document.body.style.backgroundColor = backgroundColor;
-            newsletterLoad.reset();
-        }
-    };
-    xhttp.open("GET", "https://toby.fangamer.com/newsletters/", true);
-    xhttp.send();
+        };
+        xhttp.open("GET", "https://toby.fangamer.com/newsletters/", true);
+        xhttp.send();
+    })
+        .then((value) => {return value;})
+        .catch(`Error while fetching latest newsletter data.`);
 }
 
 function displayInfo(viewport, msg) {
@@ -125,8 +127,8 @@ function displayInfo(viewport, msg) {
                     style += `<style>#source${i}{fill:${msg[i].color}}#source${i}:hover{fill:${msg[i].hoverColor}}</style>`;
                     info += `<text id="source${i}" style="font-size: ${charHeight*2 * viewport.scale}px;" x="${x * viewport.scale}" y="${y * viewport.scale}">${mystring}</text>`;
                 }
-                break;
                 info += "</a>";
+                break;
             }
             default: break;
         }
@@ -135,7 +137,11 @@ function displayInfo(viewport, msg) {
     return defs + style + info;
 }
 
-function display() {
+async function display() {
+    let value = await newsletter();
+    backgroundColor = value[0];
+    isThere = value[1];
+    redirects = value[2];
     let viewport = calcViewport();
     let msg = [
         {"text": "NO", "type": "big", "color": "#FFFFFF"}
@@ -197,59 +203,53 @@ function display() {
 }
 
 function main() {
-    let interval = setInterval(newsletter, 1000/30);
+    let interval = setInterval(display, 1000/30);
 }
 
-function load() {
-    let resetForm = document.getElementById("reset");
-    resetForm.addEventListener("reset", main);
-    // setting up paths
-    let paths = ["fnt/fnt_main.ttf"];
-    // loading the files and base64 encoding
-    let spritesNumber = paths.filter((p) => p.endsWith(".png")).length;
-    let spritesLoaded = 0;
-    let othersNumber = paths.length - spritesNumber;
-    let othersLoaded = 0;
-    for (let path of paths) {
-        if (path.endsWith(".png")) {
-            let spr = new Image();
-            spr.src = path;
-            spr.onload = async function(event) {
-                let sprLoaded = event.target;
-                let xhr = new XMLHttpRequest();
-                xhr.onload = function () {
-                    let reader = new FileReader();
-                    reader.onloadend = function () {
-                        files.set(path, {"image": sprLoaded, "base64": reader.result});
-                        spritesLoaded += 1;
-                        if (spritesLoaded === spritesNumber && othersLoaded === othersNumber) {
-                            resetForm.reset();
-                        }
-                    };
-                    reader.readAsDataURL(xhr.response);
-                };
-                xhr.open("GET", path);
-                xhr.responseType = "blob";
-                xhr.send();
+let paths = ["fnt/fnt_main.ttf"];
+
+async function getBase64(path) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", path);
+        xhr.responseType = "blob";
+        xhr.onload = function () {
+            const reader = new FileReader();
+            reader.readAsDataURL(xhr.response);
+            reader.onloadend = function () {
+                resolve(reader.result);
             }
-        } else {
-            let xhr = new XMLHttpRequest();
-            xhr.onload = function () {
-                let reader = new FileReader();
-                reader.onloadend = function () {
-                    files.set(path, {"base64": reader.result});
-                    othersLoaded += 1;
-                    if (spritesLoaded === spritesNumber && othersLoaded === othersNumber) {
-                        resetForm.reset();
-                    }
-                };
-                reader.readAsDataURL(xhr.response);
-            };
-            xhr.open("GET", path);
-            xhr.responseType = "blob";
-            xhr.send();
         }
+        xhr.send();
+    })
+        .then((value) => {return value;})
+        .catch(() => {console.error(`Error reading file "${path}".`)});
+}
+
+async function loadImage(path) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = path;
+        img.onload = function(event) {
+            resolve(event.target);
+        }
+    })
+        .then((value) => {return value;})
+        .catch(() => {console.error(`Error reading image "${path}".`)});
+}
+
+async function load() {
+    for (let path of paths) {
+        let data = {};
+        if (path.startsWith("spr")) {
+            let img = await loadImage(path);
+            data["image"] = img;
+        }
+        let base64 = await getBase64(path);
+        data["base64"] = base64;
+        files.set(path, data)
     }
+    main();
 }
 
 document.addEventListener("DOMContentLoaded", load);
