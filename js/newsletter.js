@@ -208,48 +208,56 @@ function main() {
 
 let paths = ["fnt/fnt_main.ttf"];
 
-async function getBase64(path) {
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", path);
-        xhr.responseType = "blob";
-        xhr.onload = function () {
-            const reader = new FileReader();
-            reader.readAsDataURL(xhr.response);
-            reader.onloadend = function () {
-                resolve(reader.result);
+async function load() {
+    new Promise((resolve, reject) => {
+        let count = 0;
+        let goal = paths.length;
+        for (let path of paths) {
+            switch (path.split("/")[0]) {
+                case "spr": {
+                    let img = new Image();
+                    img.src = path;
+                    img.onload = function() {
+                        let xhr = new XMLHttpRequest();
+                        xhr.open("GET", path);
+                        xhr.responseType = "blob";
+                        xhr.onload = function () {
+                            let reader = new FileReader();
+                            reader.readAsDataURL(xhr.response);
+                            reader.onloadend = function () {
+                                files.set(path, {"image": img, "base64": reader.result});
+                                count += 1;
+                                if (count >= goal) {
+                                    resolve();
+                                }
+                            }
+                        }
+                        xhr.send();
+                    }
+                }
+                default: {
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("GET", path);
+                    xhr.responseType = "blob";
+                    xhr.onload = function () {
+                        let reader = new FileReader();
+                        reader.readAsDataURL(xhr.response);
+                        reader.onloadend = function () {
+                            files.set(path, {"base64": reader.result});
+                            count += 1;
+                            if (count >= goal) {
+                                resolve();
+                            }
+                        }
+                    }
+                    xhr.send();
+                }
             }
         }
-        xhr.send();
     })
-        .then((value) => {return value;})
-        .catch(() => {console.error(`Error reading file "${path}".`)});
+        .then(main)
+        .catch(() => console.error("Error while loading assets."));
 }
 
-async function loadImage(path) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = path;
-        img.onload = function(event) {
-            resolve(event.target);
-        }
-    })
-        .then((value) => {return value;})
-        .catch(() => {console.error(`Error reading image "${path}".`)});
-}
-
-async function load() {
-    for (let path of paths) {
-        let data = {};
-        if (path.startsWith("spr")) {
-            let img = await loadImage(path);
-            data["image"] = img;
-        }
-        let base64 = await getBase64(path);
-        data["base64"] = base64;
-        files.set(path, data)
-    }
-    main();
-}
 
 document.addEventListener("DOMContentLoaded", load);

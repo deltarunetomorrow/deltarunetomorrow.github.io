@@ -557,36 +557,6 @@ function main() {
     }
 }
 
-async function getBase64(path) {
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", path);
-        xhr.responseType = "blob";
-        xhr.onload = function () {
-            const reader = new FileReader();
-            reader.readAsDataURL(xhr.response);
-            reader.onloadend = function () {
-                resolve(reader.result);
-            }
-        }
-        xhr.send();
-    })
-        .then((value) => {return value;})
-        .catch(() => {console.error(`Error reading file "${path}".`)});
-}
-
-async function loadImage(path) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = path;
-        img.onload = function(event) {
-            resolve(event.target);
-        }
-    })
-        .then((value) => {return value;})
-        .catch(() => {console.error(`Error reading image "${path}".`)});
-}
-
 let paths = ["spr/spr_textbox_left.png", "spr/spr_textbox_top.png", "spr/spr_heart.png"];
 for (let i = 0; i < 8; i++) {
     paths.push(`spr/spr_textbox_topleft_${i}.png`);
@@ -594,17 +564,54 @@ for (let i = 0; i < 8; i++) {
 paths.push("fnt/fnt_main.ttf");
 
 async function load() {
-    for (let path of paths) {
-        let data = {};
-        if (path.startsWith("spr")) {
-            let img = await loadImage(path);
-            data["image"] = img;
+    new Promise((resolve, reject) => {
+        let count = 0;
+        let goal = paths.length;
+        for (let path of paths) {
+            switch (path.split("/")[0]) {
+                case "spr": {
+                    let img = new Image();
+                    img.src = path;
+                    img.onload = function() {
+                        let xhr = new XMLHttpRequest();
+                        xhr.open("GET", path);
+                        xhr.responseType = "blob";
+                        xhr.onload = function () {
+                            let reader = new FileReader();
+                            reader.readAsDataURL(xhr.response);
+                            reader.onloadend = function () {
+                                files.set(path, {"image": img, "base64": reader.result});
+                                count += 1;
+                                if (count >= goal) {
+                                    resolve();
+                                }
+                            }
+                        }
+                        xhr.send();
+                    }
+                }
+                default: {
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("GET", path);
+                    xhr.responseType = "blob";
+                    xhr.onload = function () {
+                        let reader = new FileReader();
+                        reader.readAsDataURL(xhr.response);
+                        reader.onloadend = function () {
+                            files.set(path, {"base64": reader.result});
+                            count += 1;
+                            if (count >= goal) {
+                                resolve();
+                            }
+                        }
+                    }
+                    xhr.send();
+                }
+            }
         }
-        let base64 = await getBase64(path);
-        data["base64"] = base64;
-        files.set(path, data)
-    }
-    main();
+    })
+        .then(main)
+        .catch(() => console.error("Error while loading assets."));
 }
 
 document.addEventListener("DOMContentLoaded", load);

@@ -393,24 +393,24 @@ function main() {
 
 
 /////////////////////////////////////// LOADER SCRIPTS ///////////////////////////////////////
-async function loadImage(path) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = path;
-        img.onload = function(event) {
-            resolve(event.target);
+async function load() {
+    new Promise((resolve, reject) => {
+        let count = 0;
+        let goal = paths.length;
+        for (let path of paths) {
+            let img = new Image();
+            img.src = path;
+            img.onload = function() {
+                assets.set(path, img);
+                count += 1;
+                    if (count >= goal) {
+                        resolve();
+                    }
+                }
         }
     })
-        .then((value) => {return value;})
-        .catch(() => {console.error(`Error reading image "${path}".`)});
-}
-
-async function loadImages() {
-    for (let path of paths) {
-        let img = await loadImage(path);
-        assets.set(path, img);
-    }
-    main();
+        .then(main)
+        .catch(() => console.error("Error while loading assets."));
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -418,5 +418,5 @@ document.addEventListener("DOMContentLoaded", function() {
     applicationSurface.style.top = `${(window.visualViewport.height - applicationSurface.height)/2}px`;
     applicationSurface.style.left = `${(window.visualViewport.width - applicationSurface.width)/2}px`;
     document.body.appendChild(applicationSurface);
-    loadImages();
+    load();
 });
