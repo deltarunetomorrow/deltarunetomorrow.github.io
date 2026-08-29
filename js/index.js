@@ -565,8 +565,10 @@ paths.push("fnt/fnt_main.ttf");
 
 async function load() {
     new Promise((resolve, reject) => {
-        let count = 0;
-        let goal = paths.length;
+        let spriteCount = 0;
+        let otherCount = 0;
+        let spriteGoal = paths.filter((p) => p.startsWith("spr")).length;
+        let otherGoal = paths.length - spriteGoal;
         for (let path of paths) {
             switch (path.split("/")[0]) {
                 case "spr": {
@@ -581,8 +583,8 @@ async function load() {
                             reader.readAsDataURL(xhr.response);
                             reader.onloadend = function () {
                                 files.set(path, {"image": img, "base64": reader.result});
-                                count += 1;
-                                if (count >= goal) {
+                                spriteCount += 1;
+                                if (spriteCount >= spriteGoal && otherCount >= otherGoal) {
                                     resolve();
                                 }
                             }
@@ -599,8 +601,8 @@ async function load() {
                         reader.readAsDataURL(xhr.response);
                         reader.onloadend = function () {
                             files.set(path, {"base64": reader.result});
-                            count += 1;
-                            if (count >= goal) {
+                            otherCount += 1;
+                            if (spriteCount >= spriteGoal && otherCount >= otherGoal) {
                                 resolve();
                             }
                         }
