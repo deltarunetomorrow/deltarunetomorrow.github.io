@@ -18,23 +18,6 @@ let msg = " ";
 /////////////////////////////////////// INSERT DATA HERE ///////////////////////////////////////
 
 
-
-//////////////////// AUDIO SCRIPTS ////////////////////
-let mus = new Audio();
-mus.src = "snd/Underwater_Town.wav";
-mus.loop = true;
-
-function playMusic() {
-    if (mus.paused) {
-        document.getElementById("muslogo").src = "spr/spr_muslogo_ext.png";
-        mus.play();
-    } else {
-        document.getElementById("muslogo").src = "spr/spr_muslogo.png";
-        mus.pause();
-    }
-}
-
-
 /////////////////////////////////////// COLOR SCRIPTS ///////////////////////////////////////
 const digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
 
@@ -366,10 +349,10 @@ function drawFrame() {
 function main() {
     renderTextures();
     let interval = setInterval(function() {
-        let _start = (new Date()).getTime();
+        // let _start = (new Date()).getTime();
         msg = calcTime().timeLeft.toUpperCase();
         drawFrame();
-        let duration = (new Date()).getTime() - _start
+        // let duration = (new Date()).getTime() - _start
         /*
         if (duration >= 1000/33) {
             console.log("/////////////////////////// YO ///////////////////////////");
