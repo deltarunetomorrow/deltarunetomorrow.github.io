@@ -231,7 +231,7 @@ function drawTextPlaying(msg) {
 
 let audio = new Audio();
 audio.loop = true;
-audio.src = "snd/Underwater_Town.wav"
+audio.src = window.location.href.includes("prophecy") ? "snd/Underwater_Town.wav" : "snd/quiet_church.ogg"
 
 function mainMuslogo() {
     let img = document.getElementById("muslogo");
@@ -249,7 +249,7 @@ function playMusic() {
     playing = !playing;
     if (playing) {
         audio.play();
-        drawTextPlaying("Underwater Town");
+        drawTextPlaying(window.location.href.includes("prophecy") ? "Toby Fox - Underwater Town" : "Toby Fox - With Hope Crossed On Our Hearts");
     } else {
         audio.pause();
         document.getElementById("muslogo").src = "spr/spr_muslogo.png";
