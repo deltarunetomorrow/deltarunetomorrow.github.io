@@ -2,7 +2,7 @@
 
 // INSERT DATA HERE
 const releaseDate = new Date(2027, 11, 31, 23, 59, 59);
-const redirects = ["https://toby.fangamer.com/newsletters/summer26/#:~:text=I%20believe%20we%20will%20be%20able%20to%20release%20Chapter%206%20in%202027", "newsletter.html"];
+const redirect = "https://toby.fangamer.com/newsletters/summer26/#:~:text=I%20believe%20we%20will%20be%20able%20to%20release%20Chapter%206%20in%202027";
 const announced = false;
 const nextChapter = 6;
 // INSERT DATA HERE
@@ -30,7 +30,8 @@ function calcTime() {
     if (announced) {
         return {
             "chance": daysLeft===1.0?"100.000000%":"0.000000%",
-            "timeLeft": `${daysLeft}:${(hoursLeft+100).toString().substring(1)}:${(minutesLeft+100).toString().substring(1)}:${(secondsLeft+100).toString().substring(1)}`
+            "timeLeft": `${daysLeft}:${(hoursLeft+100).toString().substring(1)}:${(minutesLeft+100).toString().substring(1)}:${(secondsLeft+100).toString().substring(1)}`,
+            "redirect": redirect
         };
     } else {
         let percentage = `${Math.round((100/daysLeft)*Math.pow(10,6))/Math.pow(10,6)}`;
@@ -41,7 +42,8 @@ function calcTime() {
         }
         return {
             "chance": `${integerPart}.${decimalPart}%`,
-            "timeLeft": `${daysLeft} left.`
+            "timeLeft": `${daysLeft} left.`,
+            "redirect": redirect
         };
     }
 }
