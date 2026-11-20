@@ -1,0 +1,8 @@
+@font-face {
+    font-family: "fnt_main";
+    src: url("../fnt/fnt_main.ttf");
+}
+
+body {
+    font-family: "fnt_main";
+}
